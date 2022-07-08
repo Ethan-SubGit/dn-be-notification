@@ -1,0 +1,536 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CHIS.NotificationCenter.Api</name>
+    </assembly>
+    <members>
+        <member name="T:CHIS.NotificationCenter.Api.Controllers.CommunicationNoteController">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.CommunicationNoteController.#ctor(CHIS.Framework.Middleware.ICallContext,MediatR.IMediator,CHIS.NotificationCenter.Application.Queries.ICommunicationNoteQueries)">
+            <summary>
+            생성자
+            </summary>
+            <param name="context"></param>
+            <param name="mediator"></param>
+            <param name="communicationNoteQueries"></param>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.CommunicationNoteController.FindReceiveNote(System.String)">
+            <summary>
+            받은 쪽지 인스턴스 조회
+            </summary>
+            <remarks>
+            messageInstanceId로 쪽지 Detail 조회
+            </remarks>
+            <param name="id">employeemessageinstance.id</param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.CommunicationNoteController.SearchReceiveNotes(CHIS.NotificationCenter.Application.Commands.CommunicationNote.SearchCommunicationNoteCommand)">
+            <summary>
+            받은 쪽지 리스트 조회
+            </summary>
+            <remarks>
+            {"employeeId":"GUID_10001","patientId":"","searchText":"","handleStatusFilter":2,"skip":0,"take":20}
+            </remarks>
+            <param name="searchNoteCommand">searchNoteCommand</param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.CommunicationNoteController.SearchUnreadCount(System.String,System.String)">
+            <summary>
+            받은쪽지 카운트 조회
+            </summary>
+            <param name="employeeId">employeeId</param>
+            <param name="searchText">검색문자열</param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.CommunicationNoteController.ModifyReceiveNoteReadStatus(CHIS.NotificationCenter.Application.Commands.CommunicationNote.ModifyCommunicationNoteReadStatusCommand)">
+            <summary>
+            쪽지 읽음상태 업데이트
+            </summary>
+            <param name="modifyCommunicationNoteReadStatusCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.CommunicationNoteController.SearchSentNotes(System.String,System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            보낸쪽지 리스트 조회
+            </summary>
+            <param name="employeeId"></param>
+            <param name="patientId"></param>
+            <param name="searchText"></param>
+            <param name="skip"></param>
+            <param name="take"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.CommunicationNoteController.FindSentNote(System.String)">
+            <summary>
+            보낸 쪽지 인스턴스 조회
+            </summary>
+            <param name="messageInstanceId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.CommunicationNoteController.SearchNoteRecipient(System.String)">
+            <summary>
+            보낸 쪽지 수신자 목록 조회
+            </summary>
+            <param name="messageDispatchItemId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.CommunicationNoteController.ModifyReceiveNoteReadStatus(CHIS.NotificationCenter.Application.Commands.CommunicationNote.SearchEmployeesCommand)">
+            <summary>
+            쪽지 전송위한 employee information list 조회
+            </summary>
+            <param name="searchEmployeesCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.EmployeeMessageBoxController.#ctor(CHIS.Framework.Middleware.ICallContext,MediatR.IMediator,CHIS.NotificationCenter.Application.Queries.IEmployeeMessageBoxQueries)">
+            <summary>
+            
+            </summary>
+            <param name="context"></param>
+            <param name="mediator"></param>
+            <param name="employeeMessageBoxQueries"></param>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.EmployeeMessageBoxController.ModifyMessageHandleStatus(CHIS.NotificationCenter.Application.Commands.EmployeeMessageBox.ModifyMessageInstanceHandleStatusCommand)">
+            <summary>
+            특정 메시지 확인 처리함 (By Message Instance Id)
+            </summary>
+            <param name="modifyMessageInstanceHandleStatusCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.EmployeeMessageBoxController.ModifyMessageHandleStatusByEmployeeId(CHIS.NotificationCenter.Application.Commands.EmployeeMessageBox.ModifyDispatchedMessageHandleStatusByEmployeeCommand)">
+            <summary>
+            EmployeeId 로 특정 메시지 확인 처리. (by messageDispatchItemId and employeeId)
+            Readback 처리 위함.(CVR등)
+            </summary>
+            <param name="modifyDispatchedMessageHandleStatusByEmployeeCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.EmployeeMessageBoxController.ModifyDispatchedMessageHandleStatus(CHIS.NotificationCenter.Application.Commands.EmployeeMessageBox.ModifyDispatchedMessageHandleStatusCommand)">
+            <summary>
+            모든 수신자의 메시지 Handle Status 변경 (By messageDispatchItemId) 
+            타팀연동 사용중임 (ex,Cosign확인시 전체 수신자 확인처리)
+            </summary>
+            <param name="modifyDispatchedMessageHandleStatusCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.EmployeeMessageBoxController.ModifyMessageReadStatus(CHIS.NotificationCenter.Application.Commands.EmployeeMessageBox.ModifyMessageInstanceReadStatusCommand)">
+            <summary>
+            메시지 읽음상태 수정
+            </summary>
+            <param name="modifyMessageReadStatusCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.EmployeeMessageBoxController.FindMessage(System.String)">
+            <summary>
+            특정 메시지 인스턴스 조회
+            </summary>
+            <remarks>
+            messageInstanceId 값으로 메시지 상세 내용을 조회
+            </remarks>
+            <param name="id">messageInstanceId</param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.EmployeeMessageBoxController.SearchMessages(CHIS.NotificationCenter.Application.Commands.EmployeeMessageBox.SearchMessageCommand)">
+            <summary>
+            인박스 검색 API (페이징 처리됨)
+            </summary>
+            <remarks>
+            remark inbox
+            </remarks>
+            <param name="searchMessageCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.EmployeeMessageBoxController.SearchPatientMessages(CHIS.NotificationCenter.Application.Commands.EmployeeMessageBox.SearchPatientMessageCommand)">
+            <summary>
+            환자별 보기 리스트 검색
+            </summary>
+            <param name="searchPatientMessageCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.EmployeeMessageBoxController.RetrieveInboxSummary(System.String,System.String,System.String)">
+            <summary>
+             메시지 카운트 Summary
+            </summary>
+            <param name="employeeId">Required</param>
+            <param name="searchText">Optional</param>
+            <param name="patientId">Optional</param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.EmployeeMessageBoxController.RetrieveMessageDispatchItemId(System.String,System.String)">
+            <summary>
+            읽음(확인)처리를 위한 messageDispatchItemId 조회
+            </summary>
+            <param name="referenceId"></param>
+            <param name="serviceCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.EmployeeMessageBoxController.FindOutboxMessage(System.String)">
+            <summary>
+            Outbox에서 특정 메시지 조회
+            </summary>
+            <param name="messageDispatchItemId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.EmployeeMessageBoxController.SearchOutboxMessages(CHIS.NotificationCenter.Application.Commands.EmployeeMessageBox.SearchMessageCommand)">
+            <summary>
+            Outbox 메시지 목록 조회 (페이징)
+            </summary>
+            <param name="searchMessageCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.EmployeeMessageBoxController.RetrieveMessagesRecipients(System.String)">
+            <summary>
+            메시지 수신자 조회 - message-instances/outbox/recipients-status 로 통합 검토
+            </summary>
+            <param name="messageDispatchItemId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.EmployeeMessageBoxController.RetrieveMessagesRecipientsStatus(System.String)">
+            <summary>
+            보낸 메시지의 정보및 수신상태 서비스 API (Exam domain 의 전송메시지및 수신자의 수신상태 확인 서비스)
+            </summary>
+            <param name="messageDispatchItemId"></param>
+            <returns></returns>
+        </member>
+        <member name="T:CHIS.NotificationCenter.Api.Controllers.MessageDispatcherController">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageDispatcherController.#ctor(CHIS.Framework.Middleware.ICallContext,MediatR.IMediator,CHIS.Framework.Core.BackgroundJob.IBackgroundJobCreator)">
+            <summary>
+            생성자
+            </summary>
+            <param name="context"></param>
+            <param name="mediator"></param>
+            <param name="backgroundJobCreator"></param>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageDispatcherController.RequestInboxMessageNotification(CHIS.NotificationCenter.Application.Commands.MessageDispatcher.RequestInboxMessageNotificationCommand)">
+            <summary>
+            Inbox Message 전송 서비스 API
+            </summary>
+            <param name="requestInboxMessageNotificationCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageDispatcherController.CancelInboxMessage(CHIS.NotificationCenter.Application.Commands.MessageDispatcher.RequestCancellationOfInboxMessageNotificationCommand)">
+            <summary>
+            보낸 메시지 cancel 처리
+            </summary>
+            <param name="requestCancellationOfInboxMessageNotificationCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageDispatcherController.RequestPatientSmsMessageNotification(CHIS.NotificationCenter.Application.Commands.MessageDispatcher.RequestPatientSmsMessageNotificationCommand)">
+            <summary>
+            sms전송요청
+            </summary>
+            <param name="requestSmsMessageNotificationCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageDispatcherController.RequestProcessReservedSmsMessage">
+            <summary>
+            SMS 예약/일괄 발송위한 배치 스케줄러 진입 API 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageDispatcherController.RequestProcessSmsMessageResult">
+            <summary>
+            SMS 전송결과 업데이트 위한 배치 스케줄러 진입 API (Naver에 성공여부 조회)
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageDispatcherController.RequestProcessSmsMessageResultTest">
+            <summary>
+            SMS 전송결과 업데이트 위한 배치 스케줄러 진입 API (Naver에 성공여부 조회)
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageDispatcherController.RegisterCommunicationNoteNotification(CHIS.NotificationCenter.Application.Commands.MessageDispatcher.RegisterCommunicationNoteNotificationCommand)">
+            <summary>
+            직원간 쪽지 전송
+            </summary>
+            <param name="registerCommunicationNoteNotificationCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageSpecificationController.RegisterMessageSpecification(CHIS.NotificationCenter.Application.Commands.MessageSpecification.RegisterMessageSpecificationCommand)">
+            <summary>
+            메시지 규격등록
+            </summary>
+            <param name="registerMessageSpecificationCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageSpecificationController.ModifyMessageSpecification(CHIS.NotificationCenter.Application.Commands.MessageSpecification.ModifyMessageSpecificationCommand)">
+            <summary>
+            메시지 규격 수정
+            </summary>
+            <param name="modifyMessageSpecificationCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageSpecificationController.RetrieveMessageSpecifications(System.Int32)">
+            <summary>
+            메시지 규격 리스트 조회 (0:inbox, 1:sms, 2:쪽지)
+            </summary>
+            <param name="serviceType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageSpecificationController.SearchInboxMessageSpecifications">
+            <summary>
+            인박스 메시지 규격 조회
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageSpecificationController.FindMessageSpecification(System.String)">
+            <summary>
+            메시지 규격 인스턴스 조회
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageSpecificationController.FindMessageSpecificationByServiceCode(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="serviceCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageSpecificationController.RetrieveRecipientPolicyProtocol(System.Int32)">
+            <summary>
+            수신설정 프로토콜 조회
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageSpecificationController.RemoveEmployeeRecipient(CHIS.NotificationCenter.Application.Commands.MessageSpecification.RemoveEmployeeRecipientCommand)">
+            <summary>
+            직원 수신자 삭제
+            </summary>
+            <param name="removeEmployeeRecipientCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageSpecificationController.RemoveDepartmentPolicies(CHIS.NotificationCenter.Application.Commands.MessageSpecification.RemoveDepartmentPolicyCommand)">
+            <summary>
+            부서정책 삭제
+            </summary>
+            <param name="removeDepartmentPolicyCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageSpecificationController.RemoveEncounterPolicies(CHIS.NotificationCenter.Application.Commands.MessageSpecification.RemoveEncounterPolicyCommand)">
+            <summary>
+            수진(담당의료진) 정책 삭제
+            </summary>
+            <param name="removeEncounterPolicyCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageSpecificationController.RegisterMessageCallNo(CHIS.NotificationCenter.Application.Commands.MessageSpecification.RegisterMessageCallbackNoCommand)">
+            <summary>
+            sms 회신번호 등록
+            </summary>
+            <param name="registerMessageCallbackNoCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageSpecificationController.ModifyMessageCallbackNo(CHIS.NotificationCenter.Application.Commands.MessageSpecification.ModifyMessageCallbackNoCommand)">
+            <summary>
+            sms 회신번호 수정
+            </summary>
+            <param name="modifyMessageCallbackNoCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageSpecificationController.RetriveMessageCallbackNo(System.String)">
+            <summary>
+            회신번호 상세정보
+            </summary>
+            <param name="id">callbackNo id</param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageSpecificationController.RetrivesMessageCallbackNo">
+            <summary>
+            유효한 병원 회신번호정보
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageSpecificationController.DuplicateTelnoCheck(System.String)">
+            <summary>
+            중복되는 발신번호가 있는지 체크
+            </summary>
+            <param name="callbackNo">[0-9, '-']만 허용</param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageSpecificationController.RegisterMessageTemplate(CHIS.NotificationCenter.Application.Commands.MessageSpecification.RegisterMessageTemplateCommand)">
+            <summary>
+            메시지 템플릿 등록
+            </summary>
+            <param name="registerMessageTemplateCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageSpecificationController.ModifyMessageTemplate(CHIS.NotificationCenter.Application.Commands.MessageSpecification.ModifyMessageTemplateCommand)">
+            <summary>
+            message 템플릿 수정
+            </summary>
+            <param name="modifyMessageTemplateCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageSpecificationController.RemoveMessageTemplate(CHIS.NotificationCenter.Application.Commands.MessageSpecification.RemoveMessageTemplateCommand)">
+            <summary>
+            메시지 템플릿 삭제
+            </summary>
+            <param name="removeMessageTemplateCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageSpecificationController.RetrieveMessageTemplates(System.String)">
+            <summary>
+            서비스코드별 템플릿 리스트
+            </summary>
+            <param name="serviceCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageSpecificationController.RetriveMessageTemplate(System.String)">
+            <summary>
+            템플릿 조회
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.MessageSpecificationController.RetrivesMessageTemplateByServiceType(CHIS.NotificationCenter.Domain.Enum.NotificationServiceType)">
+            <summary>
+            서비스타입별 메시지 템플릿 조회
+            </summary>
+            <param name="serviceType"></param>
+            <returns></returns>
+        </member>
+        <member name="T:CHIS.NotificationCenter.Api.Controllers.NotificationCenterConfigurationController">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.NotificationCenterConfigurationController.#ctor(CHIS.Framework.Middleware.ICallContext,MediatR.IMediator,CHIS.NotificationCenter.Domain.AggregateModels.NotificationCenterConfigurationAggregate.INotificationCenterConfigurationRepository)">
+            <summary>
+            
+            </summary>
+            <param name="context"></param>
+            <param name="mediator"></param>
+            <param name="repository"></param>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.NotificationCenterConfigurationController.FindOnesignalApplicationId">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:CHIS.NotificationCenter.Api.Controllers.PatientInformationController">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.PatientInformationController.#ctor(CHIS.Framework.Middleware.ICallContext,MediatR.IMediator,CHIS.NotificationCenter.Application.Queries.IPatientInformationQueries)">
+            <summary>
+            
+            </summary>
+            <param name="context"></param>
+            <param name="mediator"></param>
+            <param name="queries"></param>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.PatientInformationController.RetrievePatientInfomation(System.String,System.String)">
+            <summary>
+            환자정보
+            </summary>
+            <param name="id"></param>
+            <param name="encounterId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.PatientInformationController.RetrievePatientInfomationV2(System.String,System.String)">
+            <summary>
+            환자정보 V2
+            </summary>
+            <param name="id"></param>
+            <param name="encounterId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.PatientInformationController.RetrievePatientParticipant(System.String)">
+            <summary>
+            담당의료진 리스트 출력 (by EncounterId , inbox Message 전송 => 담당의료진)
+            </summary>
+            <param name="encounterId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.PatientInformationController.RetrievePatientContact(System.String)">
+            <summary>
+            환자 관련 전화번호 조회
+            </summary>
+            <param name="patientId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.PatientInformationController.SearchPatientContacts(CHIS.NotificationCenter.Application.Commands.PatientInformation.SearchPatientContactsCommnad)">
+            <summary>
+            환자연락처 조회
+            </summary>
+            <param name="searchPatientContactsCommnad"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.PatientInformationController.RetrievesPatientListForInbox(System.String)">
+            <summary>
+            인박스 환자검색에서 사용(관련환자 목록)
+            </summary>
+            <param name="employeeId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.SmsMonitoringController.RequestSmsResultNotification(System.Nullable{System.DateTime},System.Nullable{System.DateTime},System.String,System.Int32,System.Int32,System.String)">
+            <summary>
+            SMS 조회 - 전송결과 (SendLog)
+            </summary>
+            <param name="fromDate"></param>
+            <param name="toDate"></param>
+            <param name="searchText"></param>
+            <param name="skip"></param>
+            <param name="take"></param>
+            <param name="employeeId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.SmsMonitoringController.RequestSmsResultDetailNotification(System.String)">
+            <summary>
+            SMS 상세조회 - 통신사 수신결과 (ReceiveLog))
+            </summary>
+            <param name="messageDispatchItemId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.SmsMonitoringController.SearchPatientSmsResult(CHIS.NotificationCenter.Application.Commands.SmsMonitoring.SearchSmsResultPatientCommand)">
+            <summary>
+            환자 SMS 결과조회
+            </summary>
+            <param name="searchSmsResultPatientCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Controllers.SmsMonitoringController.ResendPatientSms(CHIS.NotificationCenter.Application.Commands.SmsMonitoring.ResendPatientSmsCommand)">
+            <summary>
+            환자 SMS 재전송
+            </summary>
+            <param name="resendPatientSmsCommand"></param>
+            <returns></returns>
+        </member>
+        <member name="T:CHIS.NotificationCenter.Api.Infrastructure.AutofacModules.ApplicationModule">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:CHIS.NotificationCenter.Api.Infrastructure.AutofacModules.MediatorModule">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Startup.OnShutdown">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Startup.UseSwagger(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
+            <summary>
+            
+            </summary>
+            <param name="app"></param>
+        </member>
+        <member name="M:CHIS.NotificationCenter.Api.Startup.IncludeXmlComments(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions,System.String[])">
+            <summary>주석 표기위함</summary>
+        </member>
+    </members>
+</doc>

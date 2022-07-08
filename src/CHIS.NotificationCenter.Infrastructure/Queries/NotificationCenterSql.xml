@@ -1,0 +1,950 @@
+﻿<query>
+  <sql id="RetrieveMessageSpecifications">
+    <![CDATA[
+SELECT Id
+    ,MessageCategory
+    ,Classification
+    ,Description
+    ,ServiceCode
+    ,ServiceType
+    ,IsDeleted
+    ,IsSystemProperty
+    ,IsAddRecipient
+    ,MessageCallbackNoConfigId
+FROM notificationcenter_messagespecification
+    ]]>
+    <IsNotNull Prepend="WHERE" Property="ServiceType"             >ServiceType = @ServiceType</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >HospitalId = @HospitalId</IsNotNull>
+    <![CDATA[
+ ORDER
+    BY ServiceCode
+]]>
+  </sql>
+
+  <!--<sql id="FindRecipientPolicies">
+    SELECT
+    Id 
+    ,MapValue1
+    ,MapValue2
+    ,MapValue3
+    ,ProtocolCode
+    ,MessageSpecificationId
+    FROM RecipientPolicy
+    WHERE 1=1
+    <IsNotNull Prepend = "and" Property="MessageSpecificationId"> d.MessageSpecificationId = @MessageSpecificationId </IsNotNull>
+    <IsNotNull Prepend = "and" Property="ServiceCode"> d.ServiceCode = @ServiceCode </IsNotNull>
+  </sql>-->
+
+  <sql id="FindAllEmployeeRecipients">
+    <![CDATA[    
+    select
+    b.Id        as EmployeeId
+    , b.DisplayId as EmployeeDisplayId
+    , b.FullName as EmployeeName
+    /*, b.Mobile */
+    , ''  AS Mobile
+    , b.DepartmentId
+    , c.Name as DepartmentName
+    FROM Employee_EmployeeReadModel b
+    INNER JOIN Departmentbuilder_Department c
+    ON b.DepartmentId = c.Id
+    WHERE b.Id in ($inClause)
+    ]]>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >b.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >b.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >c.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >c.HospitalId = @HospitalId</IsNotNull>
+	<IsNotNull Prepend="AND" Property="IsRetirement"                >b.IsRetirement = @IsRetirement</IsNotNull>  
+  </sql>
+
+  <sql id="RetrieveRecipientPolicyProtocol">
+    <![CDATA[
+SELECT PolicyCode
+     , Type
+     , Name
+     , Description
+  FROM notificationcenter_recipientpolicyprotocol
+  WHERE 1 =1 
+    ]]>
+    <IsNotNull Prepend="AND" Property="Type">Type = @Type</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId">TenantId = @TenantId</IsNotNull>
+
+  </sql>
+
+  <sql id="RetrieveMessageCount">
+    <![CDATA[
+SELECT MSP.MessageCategory
+     , EMI.IsHandled 
+     , COUNT(EMI.Id) AS MessageCount
+  FROM notificationcenter_employeemessagebox           EMB
+ INNER JOIN notificationcenter_employeemessageinstance EMI ON EMB.Id                    = EMI.EmployeeMessageBoxId
+ INNER JOIN notificationcenter_messagedispatchitem     MDI ON EMI.MessageDispatchItemId = MDI.Id
+ INNER JOIN notificationcenter_messagespecification    MSP  ON MDI.ServiceCode           = MSP.ServiceCode
+ LEFT JOIN PatientDemographic_PatientReadModel                 PAT 
+ ON MDI.PatientId             = PAT.Id
+     ]]>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >PAT.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >PAT.HospitalId = @HospitalId</IsNotNull>    
+    <![CDATA[
+ WHERE EMI.IsInbound = 1
+ AND MDI.IsCanceled = false
+ AND MSP.ServiceType = 0
+ ]]>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >EMB.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >EMB.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >EMI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >EMI.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >MDI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >MDI.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >MSP.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >MSP.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="EmployeeId"                >EMB.EmployeeId = @EmployeeId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="PatientId"                 >MDI.PatientId = @PatientId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="SearchText">
+      (CHIS.BCF_UPPER(MDI.Content) LIKE CHIS.BCF_CONCAT(CHIS.BCF_CONCAT('%', CHIS.BCF_UPPER(@SearchText)), '%'))
+    </IsNotNull>
+
+    GROUP BY MSP.MessageCategory , EMI.IsHandled
+  </sql>
+  <sql id="SearchGrandTotalMessageCount">
+    <![CDATA[
+SELECT MSP.MessageCategory
+     , EMI.IsHandled 
+     , COUNT(EMI.Id) AS MessageCount
+  FROM notificationcenter_employeemessagebox           EMB
+ INNER JOIN notificationcenter_employeemessageinstance EMI ON EMB.Id                    = EMI.EmployeeMessageBoxId
+ INNER JOIN notificationcenter_messagedispatchitem     MDI ON EMI.MessageDispatchItemId = MDI.Id
+ INNER JOIN notificationcenter_messagespecification    MSP  ON MDI.ServiceCode           = MSP.ServiceCode
+ LEFT JOIN PatientDemographic_PatientReadModel                 PAT 
+ ON MDI.PatientId             = PAT.Id
+     ]]>
+ <IsNotNull Prepend="AND" Property="TenantId"                  >PAT.TenantId = @TenantId</IsNotNull>
+ <IsNotNull Prepend="AND" Property="HospitalId"                >PAT.HospitalId = @HospitalId</IsNotNull>
+    <![CDATA[ 
+ WHERE EMI.IsInbound = 1
+  AND MDI.IsCanceled = false
+  AND MSP.ServiceType = 0
+    ]]>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >EMB.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >EMB.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >EMI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >EMI.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >MDI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >MDI.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >MSP.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >MSP.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="EmployeeId"                >EMB.EmployeeId = @EmployeeId</IsNotNull>
+    GROUP BY MSP.MessageCategory , EMI.IsHandled
+  </sql>
+  <sql id="SearchMessageCount">
+    <![CDATA[
+SELECT MSP.MessageCategory
+     , EMI.IsHandled 
+     , COUNT(EMI.Id) AS MessageCount
+  FROM notificationcenter_employeemessagebox           EMB
+ INNER JOIN notificationcenter_employeemessageinstance EMI ON EMB.Id                    = EMI.EmployeeMessageBoxId
+ INNER JOIN notificationcenter_messagedispatchitem     MDI ON EMI.MessageDispatchItemId = MDI.Id
+ INNER JOIN notificationcenter_messagespecification    MSP  ON MDI.ServiceCode           = MSP.ServiceCode
+ LEFT OUTER JOIN PatientDemographic_PatientReadModel                 PAT ON MDI.PatientId             = PAT.Id
+     ]]>
+ <IsNotNull Prepend="AND" Property="TenantId"                  >PAT.TenantId = @TenantId</IsNotNull>
+ <IsNotNull Prepend="AND" Property="HospitalId"                >PAT.HospitalId = @HospitalId</IsNotNull>
+    <![CDATA[ 
+ LEFT OUTER JOIN Encountering_EncounterReadModel               ENC  ON MDI.EncounterId           = ENC.Id
+     ]]>
+ <IsNotNull Prepend="AND" Property="TenantId"                  >ENC.TenantId = @TenantId</IsNotNull>
+ <IsNotNull Prepend="AND" Property="HospitalId"                >ENC.HospitalId = @HospitalId</IsNotNull>
+    <![CDATA[ 
+ WHERE EMI.IsInbound = 1
+  AND MDI.IsCanceled = false
+  AND MSP.ServiceType = 0
+    ]]>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >EMB.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >EMB.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >EMI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >EMI.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >MDI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >MDI.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >MSP.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >MSP.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="EmployeeId"                >EMB.EmployeeId = @EmployeeId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="PatientId"                 >MDI.PatientId = @PatientId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="SearchText">
+      (CHIS.BCF_UPPER(MDI.Content) LIKE CHIS.BCF_CONCAT(CHIS.BCF_CONCAT('%', CHIS.BCF_UPPER(@SearchText)), '%'))
+    </IsNotNull>
+    <IsNotNull Prepend="AND" Property="FromDateTime"> MDI.senttimestamp >=  @FromDateTime </IsNotNull>
+    <IsNotNull Prepend="AND" Property="ToDateTime">  @ToDateTime >= MDI.senttimestamp   </IsNotNull>
+    <IsNotNull Prepend="AND" Property="DepartmentId"> ENC.AttendingDepartmentId =  @DepartmentId </IsNotNull>
+    <IsNotNull Prepend="AND" Property="InClauseFilterByServiceCodes">MSP.servicecode in ($InClauseFilterByServiceCodes)</IsNotNull>
+    <IsNotNull Prepend="AND" Property="MessagePriority"> MDI.MessagePriority =  @MessagePriority </IsNotNull>
+    GROUP BY MSP.MessageCategory , EMI.IsHandled
+  </sql>
+
+  <sql id="SearchMessages">
+    <![CDATA[
+SELECT EMB.EmployeeId
+     , EMI.EmployeeMessageBoxId
+     , EMI.Id                     AS MessageInstanceId
+     , EMI.HandleTime
+     , EMI.IsHandled
+     , EMI.isReaded
+     , EMI.ReadTime
+     , EMI.IsInbound
+     , EMI.MessageDispatchItemId
+     , MDI.ServiceCode
+     , MSP.MessageCategory
+     , MSP.Classification
+     , MDI.MessagePriority
+     , MDI.Title
+     , EMI.Content
+     , MDI.SenderId  
+     , CASE WHEN MDI.SenderId  = 'System' THEN 'System' ELSE EMP.FullName END AS SenderName
+     , MDI.IntegrationType
+     , MDI.integrationAddress
+     , MDI.IntegrationParameter
+     , MDI.SentTimeStamp
+     , MSP.IsSelectPatientByActiveEncounter
+     , MSP.PostActionType
+     , MDI.IsCanceled
+     , PAT.Id              AS PatientId
+     , PAT.PatientDisplayId              AS PatientDisplayId
+     , ENC.EncounterId
+     , PAT.PatientFullName                   AS PatientName 
+     , CASE WHEN PAT.GenderCode = '01' THEN 'M'
+          WHEN PAT.GenderCode = '02' THEN 'F'
+          ELSE '' END AS GenderType
+     , '' as Age  
+     , PAT.BirthDate              AS BirthDay
+     , ENC.DepartmentId
+     , DEP.Name                   AS DepartmentName
+	 , PDEP.DisplayCode            AS WardCodeName
+	 , ROOM.DisplayCode            AS RoomCodeName
+  FROM           notificationcenter_employeemessagebox      EMB 
+ INNER JOIN      notificationcenter_employeemessageinstance EMI ON EMB.Id                    = EMI.EmployeeMessageBoxId
+ INNER JOIN      notificationcenter_messagedispatchitem     MDI ON EMI.MessageDispatchItemId = MDI.Id
+ INNER JOIN      notificationcenter_messagespecification    MSP ON MDI.ServiceCode           = MSP.ServiceCode
+ LEFT JOIN      PatientDemographic_PatientReadModel                 PAT 
+ ON MDI.PatientId             = PAT.Id
+]]>
+ <IsNotNull Prepend="AND" Property="TenantId"                  >PAT.TenantId = @TenantId</IsNotNull>
+ <IsNotNull Prepend="AND" Property="HospitalId"                >PAT.HospitalId = @HospitalId</IsNotNull>
+<![CDATA[  
+ LEFT OUTER JOIN Employee_EmployeeReadModel                EMP ON MDI.SenderId              = EMP.Id
+]]>
+ <IsNotNull Prepend="AND" Property="TenantId"                  >EMP.TenantId = @TenantId</IsNotNull>
+ <IsNotNull Prepend="AND" Property="HospitalId"                >EMP.HospitalId = @HospitalId</IsNotNull>
+ <![CDATA[   
+ LEFT OUTER JOIN(
+                   SELECT PatientId
+                        , AttendingDepartmentId                 AS DepartmentId 
+                        , Id           AS EncounterId
+						, OccupyingRoomId		 AS RoomId
+						, OccupyingWardId		 AS WardId
+                    FROM            Encountering_EncounterReadModel
+                    WHERE IsValidDataRow = true 
+]]>
+                    <IsNotNull Prepend="AND" Property="TenantId"                  >TenantId = @TenantId</IsNotNull>
+                    <IsNotNull Prepend="AND" Property="HospitalId"                >HospitalId = @HospitalId</IsNotNull>
+<![CDATA[                       
+                )                                           ENC ON ENC.EncounterId           = MDI.EncounterId
+ LEFT OUTER JOIN Departmentbuilder_Department              DEP 
+ ON ENC.DepartmentId          = DEP.Id
+]]>
+ <IsNotNull Prepend="AND" Property="TenantId"                  >DEP.TenantId = @TenantId</IsNotNull>
+ <IsNotNull Prepend="AND" Property="HospitalId"                >DEP.HospitalId = @HospitalId</IsNotNull>
+<![CDATA[       
+ LEFT OUTER JOIN Locationbuilder_Room   ROOM
+ ON ENC.RoomId = ROOM.Id
+]]>
+ <IsNotNull Prepend="AND" Property="TenantId"                  >DEP.TenantId = @TenantId</IsNotNull>
+ <IsNotNull Prepend="AND" Property="HospitalId"                >DEP.HospitalId = @HospitalId</IsNotNull>
+ <![CDATA[       
+ LEFT OUTER JOIN Departmentbuilder_Department   PDEP
+ ON ENC.WardId = PDEP.Id
+]]>
+ <IsNotNull Prepend="AND" Property="TenantId"                  >PDEP.TenantId = @TenantId</IsNotNull>
+ <IsNotNull Prepend="AND" Property="HospitalId"                >PDEP.HospitalId = @HospitalId</IsNotNull>
+ <![CDATA[        
+ WHERE EMI.IsInbound = 1
+  AND MDI.IsCanceled = false
+  AND MSP.ServiceType = 0
+]]>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >EMB.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >EMB.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >EMI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >EMI.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="EmployeeId">EMB.EmployeeId = @EmployeeId</IsNotNull>
+    <IsAnd Prepend="">
+      <IsNull     Prepend="" Property="EmployeeId" />
+      <IsNotNull  Prepend="" Property="InclusionMessageDispatchItemId"/>
+      <IsAndValue Prppend="">
+        AND MDI.Id = @InclusionMessageDispatchItemId
+      </IsAndValue>
+    </IsAnd>
+    <IsNotNull Prepend="AND" Property="SenderId"                  >MSP.SenderId = @SenderId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="IsHandled"                 >EMI.IsHandled = @IsHandled</IsNotNull>
+    <IsNotNull Prepend="AND" Property="MessageCategory"           >MSP.MessageCategory = @MessageCategory</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >MSP.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >MSP.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="PatientId"                 >MDI.PatientId = @PatientId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >MDI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >MDI.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="ExclusionMessageInstanceId">EMI.Id NOT IN (@ExclusionMessageInstanceId)</IsNotNull>
+    <IsNotNull Prepend="AND" Property="SearchText">
+      ( CHIS.BCF_UPPER(MDI.Content) LIKE CHIS.BCF_CONCAT(CHIS.BCF_CONCAT('%', CHIS.BCF_UPPER(@SearchText)), '%'))
+    </IsNotNull>
+    <IsNotNull Prepend="AND" Property="FromDateTime"> MDI.senttimestamp >=  @FromDateTime </IsNotNull>
+    <IsNotNull Prepend="AND" Property="ToDateTime">  @ToDateTime >= MDI.senttimestamp   </IsNotNull>
+    <IsNotNull Prepend="AND" Property="DepartmentId"> ENC.DepartmentId =  @DepartmentId </IsNotNull>
+    <IsNotNull Prepend="AND" Property="InClauseFilterByServiceCodes">MSP.servicecode in ($InClauseFilterByServiceCodes)</IsNotNull>
+    <IsNotNull Prepend="AND" Property="MessagePriority"> MDI.MessagePriority =  @MessagePriority </IsNotNull>
+    ORDER BY
+    <IsNotNull Prepend="" Property="InclusionMessageDispatchItemId">
+      CASE WHEN EMI.MessageDispatchItemId = @InclusionMessageDispatchItemId THEN 0 ELSE 1 END,
+    </IsNotNull> MDI.SentTimeStamp DESC
+    <IsAnd Prepend="">
+      <IsNotNull Prepend="" Property="Skip" />
+      <IsGreater Prepend="" Property="Take" CompareValue="0"/>
+      <IsAndValue Prppend="">
+        OFFSET @Skip ROWS
+        FETCH NEXT @Take ROWS ONLY
+      </IsAndValue>
+    </IsAnd>
+  </sql>
+
+
+  <sql id="RetrieveInboxMessages">
+    <![CDATA[
+SELECT EMB.EmployeeId
+     , EMI.EmployeeMessageBoxId
+     , EMI.Id                     AS MessageInstanceId
+     , EMI.HandleTime
+     , EMI.IsHandled
+     , EMI.isReaded
+     , EMI.ReadTime
+     , EMI.IsInbound
+     , EMI.MessageDispatchItemId
+     , MDI.ServiceCode
+     , MSP.MessageCategory
+     , MSP.Classification
+     , MDI.MessagePriority
+     , MDI.Title
+     , EMI.Content
+     , MDI.SenderId  
+     , CASE WHEN MDI.SenderId  = 'System' THEN 'System' ELSE EMP.FullName END AS SenderName
+     , MDI.IntegrationType
+     , MDI.integrationAddress
+     , MDI.IntegrationParameter
+     , MDI.SentTimeStamp
+     , MSP.IsSelectPatientByActiveEncounter
+     , MSP.PostActionType
+     , MDI.IsCanceled
+     , PAT.Id              AS PatientId
+     , PAT.PatientDisplayId              AS PatientDisplayId
+     , ENC.EncounterId
+     , PAT.PatientFullName                   AS PatientName 
+     , CASE WHEN PAT.GenderCode = '01' THEN 'M'
+          WHEN PAT.GenderCode = '02' THEN 'F'
+          ELSE '' END AS GenerType
+     , '' as Age  
+     , PAT.BirthDate              AS BirthDay
+     , ENC.DepartmentId
+     , DEP.Name                   AS DepartmentName
+
+
+
+  FROM           notificationcenter_employeemessagebox      EMB 
+ INNER JOIN      notificationcenter_employeemessageinstance EMI ON EMB.Id                    = EMI.EmployeeMessageBoxId
+ INNER JOIN      notificationcenter_messagedispatchitem     MDI ON EMI.MessageDispatchItemId = MDI.Id
+ INNER JOIN      notificationcenter_messagespecification    MSP ON MDI.ServiceCode           = MSP.ServiceCode
+ INNER JOIN      PatientDemographic_PatientReadModel                 PAT ON MDI.PatientId             = PAT.Id
+ LEFT OUTER JOIN Employee_EmployeeReadModel                EMP 
+ ON MDI.SenderId              = EMP.Id
+]]>
+ <IsNotNull Prepend="AND" Property="TenantId"                  >EMP.TenantId = @TenantId</IsNotNull>
+ <IsNotNull Prepend="AND" Property="HospitalId"                >EMP.HospitalId = @HospitalId</IsNotNull>
+<![CDATA[    
+ LEFT OUTER JOIN(
+                   SELECT PatientId
+                        , AttendingDepartmentId                 AS DepartmentId 
+                        , Id           AS EncounterId
+                    FROM            Encountering_EncounterReadModel
+                    WHERE IsValidDataRow = true 
+]]>
+                    <IsNotNull Prepend="AND" Property="TenantId"                  >TenantId = @TenantId</IsNotNull>
+                    <IsNotNull Prepend="AND" Property="HospitalId"                >HospitalId = @HospitalId</IsNotNull>
+<![CDATA[                                           
+                )                                           ENC ON ENC.EncounterId           = MDI.EncounterId
+ LEFT OUTER JOIN Departmentbuilder_Department              DEP 
+ ON ENC.DepartmentId          = DEP.Id
+]]>
+ <IsNotNull Prepend="AND" Property="TenantId"                  >DEP.TenantId = @TenantId</IsNotNull>
+ <IsNotNull Prepend="AND" Property="HospitalId"                >DEP.HospitalId = @HospitalId</IsNotNull>
+<![CDATA[                         
+ WHERE EMI.IsInbound = 1
+  AND MDI.IsCanceled = false
+  AND MSP.ServiceType = 0
+]]>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >EMB.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >EMB.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="EmployeeId">EMB.EmployeeId = @EmployeeId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >EMI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >EMI.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >MDI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >MDI.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >MSP.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >MSP.HospitalId = @HospitalId</IsNotNull>
+    <IsAnd Prepend="">
+      <IsNull     Prepend="" Property="EmployeeId" />
+      <IsNotNull  Prepend="" Property="InclusionMessageDispatchItemId"/>
+      <IsAndValue Prppend="">
+        AND MDI.Id = @InclusionMessageDispatchItemId
+      </IsAndValue>
+    </IsAnd>
+    <IsNotNull Prepend="AND" Property="SenderId"                  >MSP.SenderId = @SenderId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="IsHandled"                 >EMI.IsHandled = @IsHandled</IsNotNull>
+    <IsNotNull Prepend="AND" Property="MessageCategory"           >MSP.MessageCategory = @MessageCategory</IsNotNull>
+    <IsNotNull Prepend="AND" Property="PatientId"                 >MDI.PatientId = @PatientId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="ExclusionMessageInstanceId">EMI.Id NOT IN (@ExclusionMessageInstanceId)</IsNotNull>
+    <IsNotNull Prepend="AND" Property="SearchText">
+      (CHIS.BCF_UPPER(MDI.Content) LIKE CHIS.BCF_CONCAT(CHIS.BCF_CONCAT('%', CHIS.BCF_UPPER(@SearchText)), '%'))
+
+    </IsNotNull>
+    ORDER BY
+    <IsNotNull Prepend="" Property="InclusionMessageDispatchItemId">
+      CASE WHEN EMI.MessageDispatchItemId = @InclusionMessageDispatchItemId THEN 0 ELSE 1 END,
+    </IsNotNull> MDI.SentTimeStamp DESC
+    <IsAnd Prepend="">
+      <IsNotNull Prepend="" Property="Skip" />
+      <IsGreater Prepend="" Property="Take" CompareValue="0"/>
+      <IsAndValue Prppend="">
+        OFFSET @Skip ROWS
+        FETCH NEXT @Take ROWS ONLY
+      </IsAndValue>
+    </IsAnd>
+  </sql>
+
+  <sql id="RetrieveInboxPatientMessagesList">
+    <![CDATA[
+SELECT MM.DocumentUnHandled
+     , MM.DocumentHandled
+     , MM.DocumentUnHandled + MM.DocumentHandled AS DocumentAll
+     , MM.ExamUnHandled
+     , MM.ExamHandled
+     , MM.ExamUnHandled   + MM.ExamHandled   AS ExamAll
+     , MM.OrderUnHandled
+     , MM.OrderHandled
+     , MM.OrderUnHandled  + MM.OrderHandled  AS OrderAll
+     , PAT.Id                                    AS PatientId
+     , PAT.PatientDisplayId                             AS PatientDisplayId
+     , PAT.PatientFullName                                  AS PatientName
+     , CASE WHEN PAT.GenderCode = '01' THEN 'M'
+          WHEN PAT.GenderCode = '02' THEN 'F' 
+          ELSE '' END AS GenderType
+     , '' AS Age
+     , PAT.BirthDate                            AS BirthDay
+     , ''                                        AS DepartmentId
+     , ''                                        AS DepartmentName
+  FROM(
+       SELECT M.PatientId
+            , MAX(LastSentTimeStamp) AS LastSentTimeStamp
+            , MAX(CASE WHEN M.MessageCategory = 'D' AND isHandled = 0 THEN M.MessageCount ELSE 0 END) AS DocumentUnHandled
+            , MAX(CASE WHEN M.MessageCategory = 'D' AND isHandled = 1 THEN M.MessageCount ELSE 0 END) AS DocumentHandled
+            , MAX(CASE WHEN M.MessageCategory = 'R' AND isHandled = 0 THEN M.MessageCount ELSE 0 END) AS ExamUnHandled            
+            , MAX(CASE WHEN M.MessageCategory = 'R' AND isHandled = 1 THEN M.MessageCount ELSE 0 END) AS ExamHandled
+            , MAX(CASE WHEN M.MessageCategory = 'O' AND isHandled = 0 THEN M.MessageCount ELSE 0 END) AS OrderUnHandled
+            , MAX(CASE WHEN M.MessageCategory = 'O' AND isHandled = 1 THEN M.MessageCount ELSE 0 END) AS OrderHandled            
+         FROM(
+              SELECT MDI.PatientId, MS.MessageCategory
+                   , EMI.IsHandled
+                   , MAX(MDI.SentTimeStamp) AS LastSentTimeStamp
+                   , COUNT(EMI.Id) as MessageCount
+                FROM      notificationcenter_employeemessagebox       EMB 
+               INNER JOIN notificationcenter_employeemessageinstance  EMI ON EMB.Id = EMI.EmployeeMessageBoxId
+               INNER JOIN notificationcenter_messagedispatchitem      MDI ON EMI.MessageDispatchItemId = MDI.Id
+               INNER JOIN notificationcenter_messagespecification     MS  ON MDI.ServiceCode = MS.ServiceCode
+               LEFT JOIN PatientDemographic_PatientReadModel                  PA  
+               ON MDI.PatientId = PA.Id
+    ]]>
+               <IsNotNull Prepend="AND" Property="TenantId"                  >PA.TenantId = @TenantId</IsNotNull>
+               <IsNotNull Prepend="AND" Property="HospitalId"                >PA.HospitalId = @HospitalId</IsNotNull>
+    <![CDATA[                 
+               WHERE EMI.IsInbound = 1 AND MDI.IsCanceled = false AND MS.ServiceType = 0
+    ]]>
+    <IsNotNull Prepend="AND" Property="TenantId">EMB.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId">EMB.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="EmployeeId">EMB.EmployeeId = @EmployeeId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId">EMI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId">EMI.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId">MS.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId">MS.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId">MDI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId">MDI.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="SearchText">
+      (CHIS.BCF_UPPER(MDI.Content) LIKE CHIS.BCF_CONCAT(CHIS.BCF_CONCAT('%', CHIS.BCF_UPPER(@SearchText)), '%'))
+    </IsNotNull>
+    <![CDATA[    
+               GROUP BY MDI.PatientId, MS.MessageCategory, EMI.IsHandled
+             ) M
+        GROUP BY M.PatientId
+      ) MM
+ INNER JOIN       PatientDemographic_PatientReadModel                PAT 
+ ON MM.PatientId = PAT.Id
+    ]]>
+ <IsNotNull Prepend="AND" Property="TenantId"                  >PAT.TenantId = @TenantId</IsNotNull>
+ <IsNotNull Prepend="AND" Property="HospitalId"                >PAT.HospitalId = @HospitalId</IsNotNull>
+    <![CDATA[                  
+ WHERE 1 = 1
+    ]]>
+    <IsEqual Prepend="AND" Property="IsHandled" CompareValue="0">(MM.DocumentUnHandled > 0 OR MM.ExamUnHandled > 0 OR MM.OrderUnHandled > 0)</IsEqual>
+    <IsEqual Prepend="AND" Property="IsHandled" CompareValue="1">(MM.DocumentHandled > 0 OR MM.ExamHandled > 0 OR MM.OrderHandled > 0)</IsEqual>
+    <![CDATA[
+ ORDER BY MM.LastSentTimeStamp DESC
+]]>
+    <IsAnd Prepend="">
+      <IsNotNull Prepend="" Property="Skip" />
+      <IsGreater Prepend="" Property="Take" CompareValue="0"/>
+      <IsAndValue Prppend="">
+        <![CDATA[    
+OFFSET @Skip ROWS
+ FETCH NEXT @Take ROWS ONLY
+    ]]>
+      </IsAndValue>
+    </IsAnd>
+  </sql>
+
+  <sql id="SearchPatientMessages">
+    <![CDATA[
+SELECT MM.DocumentUnHandled
+     , MM.DocumentHandled
+     , MM.DocumentUnHandled + MM.DocumentHandled AS DocumentAll
+     , MM.ExamUnHandled
+     , MM.ExamHandled
+     , MM.ExamUnHandled   + MM.ExamHandled   AS ExamAll
+     , MM.OrderUnHandled
+     , MM.OrderHandled
+     , MM.OrderUnHandled  + MM.OrderHandled  AS OrderAll
+     , PAT.Id                                    AS PatientId
+     , PAT.PatientDisplayId                             AS PatientDisplayId
+     , PAT.PatientFullName                                  AS PatientName
+     , CASE WHEN PAT.GenderCode = '01' THEN 'M'
+          WHEN PAT.GenderCode = '02' THEN 'F' 
+          ELSE '' END AS GenderType
+     , '' AS Age
+     , PAT.BirthDate                             AS BirthDay
+     , ''                                        AS DepartmentId
+     , ''                                        AS DepartmentName
+  FROM(
+       SELECT M.PatientId
+            , MAX(LastSentTimeStamp) AS LastSentTimeStamp
+            , MAX(CASE WHEN M.MessageCategory = 'D' AND isHandled = 0 THEN M.MessageCount ELSE 0 END) AS DocumentUnHandled
+            , MAX(CASE WHEN M.MessageCategory = 'D' AND isHandled = 1 THEN M.MessageCount ELSE 0 END) AS DocumentHandled
+            , MAX(CASE WHEN M.MessageCategory = 'R' AND isHandled = 0 THEN M.MessageCount ELSE 0 END) AS ExamUnHandled            
+            , MAX(CASE WHEN M.MessageCategory = 'R' AND isHandled = 1 THEN M.MessageCount ELSE 0 END) AS ExamHandled
+            , MAX(CASE WHEN M.MessageCategory = 'O' AND isHandled = 0 THEN M.MessageCount ELSE 0 END) AS OrderUnHandled
+            , MAX(CASE WHEN M.MessageCategory = 'O' AND isHandled = 1 THEN M.MessageCount ELSE 0 END) AS OrderHandled    
+         FROM(
+              SELECT MDI.PatientId, MS.MessageCategory
+                   , EMI.IsHandled
+                   , MAX(MDI.SentTimeStamp) AS LastSentTimeStamp
+                   , COUNT(EMI.Id) as MessageCount
+                FROM      notificationcenter_employeemessagebox       EMB 
+               INNER JOIN notificationcenter_employeemessageinstance  EMI ON EMB.Id = EMI.EmployeeMessageBoxId
+               INNER JOIN notificationcenter_messagedispatchitem      MDI ON EMI.MessageDispatchItemId = MDI.Id
+               INNER JOIN notificationcenter_messagespecification     MS  ON MDI.ServiceCode = MS.ServiceCode
+               LEFT  JOIN PatientDemographic_PatientReadModel                  PA  
+               ON MDI.PatientId = PA.Id
+]]>
+               <IsNotNull Prepend="AND" Property="TenantId"                  >PA.TenantId = @TenantId</IsNotNull>
+               <IsNotNull Prepend="AND" Property="HospitalId"                >PA.HospitalId = @HospitalId</IsNotNull>
+<![CDATA[                 
+               LEFT JOIN Encountering_EncounterReadModel                EC  
+               ON MDI.EncounterId = EC.Id
+    ]]>
+    <IsNotNull Prepend="AND" Property="TenantId">EC.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId">EC.HospitalId = @HospitalId</IsNotNull>
+    <![CDATA[ 
+               WHERE EMI.IsInbound = 1 AND MDI.IsCanceled = false AND MS.ServiceType = 0
+    ]]>
+    <IsNotNull Prepend="AND" Property="TenantId">EMB.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId">EMB.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="EmployeeId">EMB.EmployeeId = @EmployeeId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId">MDI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId">MDI.HospitalId = @HospitalId</IsNotNull>
+    
+    <IsNotNull Prepend="AND" Property="TenantId">MS.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId">MS.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId">EMI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId">EMI.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="PatientId">PA.Id = @PatientId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="SearchText">
+      ( CHIS.BCF_UPPER(MDI.Content) LIKE CHIS.BCF_CONCAT(CHIS.BCF_CONCAT('%', CHIS.BCF_UPPER(@SearchText)), '%'))
+    </IsNotNull>
+    <IsNotNull Prepend="AND" Property="FromDateTime"> MDI.senttimestamp >=  @FromDateTime </IsNotNull>
+    <IsNotNull Prepend="AND" Property="ToDateTime">  @ToDateTime >= MDI.senttimestamp   </IsNotNull>
+    <IsNotNull Prepend="AND" Property="DepartmentId"> EC.AttendingDepartmentId =  @DepartmentId </IsNotNull>
+    <IsNotNull Prepend="AND" Property="InClauseFilterByServiceCodes">MS.servicecode in ($InClauseFilterByServiceCodes)</IsNotNull>
+    <IsNotNull Prepend="AND" Property="MessagePriority"> MDI.MessagePriority =  @MessagePriority </IsNotNull>
+    <IsNotNull Prepend="AND" Property="IsHandled"> EMI.IsHandled =  @IsHandled </IsNotNull>
+    <![CDATA[    
+               GROUP BY MDI.PatientId, MS.MessageCategory, EMI.IsHandled
+             ) M
+        GROUP BY M.PatientId
+      ) MM
+ INNER JOIN       PatientDemographic_PatientReadModel                PAT ON MM.PatientId = PAT.Id
+ WHERE 1 = 1
+    ]]>
+
+    <![CDATA[
+ ORDER BY MM.LastSentTimeStamp DESC
+]]>
+    <IsAnd Prepend="">
+      <IsNotNull Prepend="" Property="Skip" />
+      <IsGreater Prepend="" Property="Take" CompareValue="0"/>
+      <IsAndValue Prppend="">
+        <![CDATA[    
+OFFSET @Skip ROWS
+ FETCH NEXT @Take ROWS ONLY
+    ]]>
+      </IsAndValue>
+    </IsAnd>
+  </sql>
+  <sql id="SearchOutboxMessageCount">
+    <![CDATA[
+SELECT MSP.MessageCategory
+     , COUNT(EMI.Id) AS MessageCount
+  FROM notificationcenter_employeemessagebox           EMB
+ INNER JOIN notificationcenter_employeemessageinstance EMI ON EMB.Id                    = EMI.EmployeeMessageBoxId
+ INNER JOIN notificationcenter_messagedispatchitem     MDI ON EMI.MessageDispatchItemId = MDI.Id
+ INNER JOIN notificationcenter_messagespecification    MSP  ON MDI.ServiceCode           = MSP.ServiceCode
+ LEFT OUTER JOIN PatientDemographic_PatientReadModel                 PAT 
+ ON MDI.PatientId             = PAT.Id
+]]>
+ <IsNotNull Prepend="AND" Property="TenantId"                  >PAT.TenantId = @TenantId</IsNotNull>
+ <IsNotNull Prepend="AND" Property="HospitalId"                >PAT.HospitalId = @HospitalId</IsNotNull>
+<![CDATA[   
+ LEFT OUTER JOIN Encountering_EncounterReadModel               ENC  
+ ON MDI.EncounterId           = ENC.Id
+]]>
+ <IsNotNull Prepend="AND" Property="TenantId"                  >ENC.TenantId = @TenantId</IsNotNull>
+ <IsNotNull Prepend="AND" Property="HospitalId"                >ENC.HospitalId = @HospitalId</IsNotNull>
+<![CDATA[   
+ WHERE EMI.IsInbound = 0
+  AND MDI.IsCanceled = false
+  AND MSP.ServiceType = 0
+    ]]>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >EMB.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >EMB.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="EmployeeId"                >EMB.EmployeeId = @EmployeeId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >EMI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >EMI.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >MDI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >MDI.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >MSP.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >MSP.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="PatientId"                 >MDI.PatientId = @PatientId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="SearchText">
+      (CHIS.BCF_UPPER(MDI.Content) LIKE CHIS.BCF_CONCAT(CHIS.BCF_CONCAT('%', CHIS.BCF_UPPER(@SearchText)), '%'))
+    </IsNotNull>
+    <IsNotNull Prepend="AND" Property="FromDateTime"> MDI.senttimestamp >=  @FromDateTime </IsNotNull>
+    <IsNotNull Prepend="AND" Property="ToDateTime">  @ToDateTime >= MDI.senttimestamp   </IsNotNull>
+    <IsNotNull Prepend="AND" Property="DepartmentId"> ENC.AttendingDepartmentId =  @DepartmentId </IsNotNull>
+    <IsNotNull Prepend="AND" Property="InClauseFilterByServiceCodes">MSP.servicecode in ($InClauseFilterByServiceCodes)</IsNotNull>
+    GROUP BY MSP.MessageCategory
+  </sql>
+  <sql id="SearchOutboxMessages">
+    <![CDATA[
+SELECT EMB.EmployeeId
+     , EMI.EmployeeMessageBoxId
+     , EMI.Id                     AS MessageInstanceId
+     , EMI.HandleTime
+     , EMI.IsHandled
+     , EMI.isReaded
+     , EMI.ReadTime
+     , EMI.IsInbound
+     , EMI.MessageDispatchItemId
+     , MDI.ServiceCode
+     , MSP.MessageCategory
+     , MSP.Classification
+     , MDI.MessagePriority
+     , MDI.Title
+     , EMI.Content
+     , MDI.SenderId  
+     , CASE WHEN MDI.SenderId  = 'System' THEN 'System' ELSE EMP.FullName END AS SenderName
+     , MDI.IntegrationType
+     , MDI.integrationAddress
+     , MDI.IntegrationParameter
+     , MDI.SentTimeStamp
+     , MSP.IsSelectPatientByActiveEncounter
+     , MSP.PostActionType
+     , MDI.IsCanceled
+     , (
+			    SELECT CASE WHEN count(b.FullName) > 1 THEN CHIS.BCF_CONCAT(CHIS.BCF_CONCAT(CHIS.BCF_CONCAT(Max(b.FullName),'('),count(b.FullName)),')')     
+					    ELSE Max(b.FullName) 
+					    END
+			    FROM notificationcenter_employeemessageinstance a, Employee_EmployeeReadModel b
+			    WHERE a.employeeid = b.id
+			    and a.isinbound = true
+			    and a.messagedispatchitemid = EMI.messagedispatchitemid
+			    group by a.messagedispatchitemid
+     ) AS Recipient      
+     , MDI.PatientId              AS PatientId
+     , PAT.PatientDisplayId              AS PatientDisplayId
+     , ENC.EncounterId
+     , PAT.PatientFullName                   AS PatientName 
+     , CASE WHEN PAT.GenderCode = '01' THEN 'M'
+            WHEN PAT.GenderCode = '02' THEN 'F'
+            ELSE '' END AS GenderType
+     , '' as Age  
+     , PAT.BirthDate                          AS BirthDay
+     , ENC.DepartmentId
+     , DEP.Name                   AS DepartmentName
+	 , PDEP.DisplayCode         AS WardCodeName
+	 , ROOM.DisplayCode         AS RoomCodeName
+  FROM           notificationcenter_employeemessagebox      EMB 
+ INNER JOIN      notificationcenter_employeemessageinstance EMI ON EMB.Id                    = EMI.EmployeeMessageBoxId
+ INNER JOIN      notificationcenter_messagedispatchitem     MDI ON EMI.MessageDispatchItemId = MDI.Id
+ INNER JOIN      notificationcenter_messagespecification    MSP ON MDI.ServiceCode           = MSP.ServiceCode
+ INNER JOIN      PatientDemographic_PatientReadModel                 PAT ON MDI.PatientId             = PAT.Id
+ LEFT OUTER JOIN Employee_EmployeeReadModel                EMP 
+ ON MDI.SenderId              = EMP.Id
+]]>
+ <IsNotNull Prepend="AND" Property="TenantId"                  >EMP.TenantId = @TenantId</IsNotNull>
+ <IsNotNull Prepend="AND" Property="HospitalId"                >EMP.HospitalId = @HospitalId</IsNotNull>
+<![CDATA[    
+ LEFT OUTER JOIN(
+                   SELECT PatientId
+                        , AttendingDepartmentId                 AS DepartmentId 
+                        , Id           AS EncounterId
+						, OccupyingRoomId		 AS RoomId
+						, OccupyingWardId		 AS WardId
+                    FROM            Encountering_EncounterReadModel
+                    WHERE IsValidDataRow = true 
+]]>
+                    <IsNotNull Prepend="AND" Property="TenantId"                  >TenantId = @TenantId</IsNotNull>
+                    <IsNotNull Prepend="AND" Property="HospitalId"                >HospitalId = @HospitalId</IsNotNull>
+<![CDATA[                                           
+                )                                           ENC ON ENC.EncounterId           = MDI.EncounterId
+ LEFT OUTER JOIN Departmentbuilder_Department              DEP 
+ ON ENC.DepartmentId          = DEP.Id
+]]>
+ <IsNotNull Prepend="AND" Property="TenantId"                  >DEP.TenantId = @TenantId</IsNotNull>
+ <IsNotNull Prepend="AND" Property="HospitalId"                >DEP.HospitalId = @HospitalId</IsNotNull>
+<![CDATA[      
+ LEFT OUTER JOIN Locationbuilder_Room   ROOM
+ ON ENC.RoomId		= ROOM.Id
+]]>
+ <IsNotNull Prepend="AND" Property="TenantId"                  >ROOM.TenantId = @TenantId</IsNotNull>
+ <IsNotNull Prepend="AND" Property="HospitalId"                >ROOM.HospitalId = @HospitalId</IsNotNull>
+ <![CDATA[     
+ LEFT OUTER JOIN Departmentbuilder_Department  PDEP
+ ON ENC.WardId = PDEP.Id
+]]>
+ <IsNotNull Prepend="AND" Property="TenantId"                  >PDEP.TenantId = @TenantId</IsNotNull>
+ <IsNotNull Prepend="AND" Property="HospitalId"                >PDEP.HospitalId = @HospitalId</IsNotNull>
+ <![CDATA[      
+ WHERE EMI.IsInbound = false
+  AND MDI.IsCanceled = false
+  AND MSP.ServiceType = 0
+]]>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >EMB.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >EMB.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="EmployeeId">EMB.EmployeeId = @EmployeeId</IsNotNull>
+    <IsAnd Prepend="">
+      <IsNull     Prepend="" Property="EmployeeId" />
+      <IsNotNull  Prepend="" Property="InclusionMessageDispatchItemId"/>
+      <IsAndValue Prppend="">
+        AND MDI.Id = @InclusionMessageDispatchItemId
+      </IsAndValue>
+    </IsAnd>
+    <IsNotNull Prepend="AND" Property="SenderId"                  >MSP.SenderId = @SenderId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="MessageCategory"           >MSP.MessageCategory = @MessageCategory</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >MSP.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >MSP.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >MDI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >MDI.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="PatientId"                 >MDI.PatientId = @PatientId</IsNotNull>
+	<IsNotNull Prepend="AND" Property="IsCanceled"                 >MDI.IsCanceled = @IsCanceled</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >PAT.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="PatientId"                 >PAT.Id = @PatientId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >EMI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >EMI.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="ExclusionMessageInstanceId">EMI.Id NOT IN (@ExclusionMessageInstanceId)</IsNotNull>
+    <IsNotNull Prepend="AND" Property="SearchText">
+      ( CHIS.BCF_UPPER(MDI.Content) LIKE CHIS.BCF_CONCAT(CHIS.BCF_CONCAT('%', CHIS.BCF_UPPER(@SearchText)), '%'))
+    </IsNotNull>
+    <IsNotNull Prepend="AND" Property="FromDateTime"> MDI.senttimestamp >=  @FromDateTime </IsNotNull>
+    <IsNotNull Prepend="AND" Property="ToDateTime">  @ToDateTime >= MDI.senttimestamp   </IsNotNull>
+    <IsNotNull Prepend="AND" Property="DepartmentId"> ENC.DepartmentId =  @DepartmentId </IsNotNull>
+    <IsNotNull Prepend="AND" Property="InClauseFilterByServiceCodes">MSP.servicecode in ($InClauseFilterByServiceCodes)</IsNotNull>
+    ORDER BY
+    <IsNotNull Prepend="" Property="InclusionMessageDispatchItemId">
+      CASE WHEN EMI.MessageDispatchItemId = @InclusionMessageDispatchItemId THEN 0 ELSE 1 END,
+    </IsNotNull> MDI.SentTimeStamp DESC
+    <IsAnd Prepend="">
+      <IsNotNull Prepend="" Property="Skip" />
+      <IsGreater Prepend="" Property="Take" CompareValue="0"/>
+      <IsAndValue Prppend="">
+        OFFSET @Skip ROWS
+        FETCH NEXT @Take ROWS ONLY
+      </IsAndValue>
+    </IsAnd>
+  </sql>
+  <sql id="RetrieveSentboxMessages">
+    <![CDATA[
+SELECT MDI.Id                                                   AS MessageDispatchItemId
+     , MDI.ServiceCode
+     , MSP.MessageCategory
+     , MSP.Classification
+     , MDI.MessagePriority
+     , MDI.Title
+     , MSI.Content
+     , MDI.SenderId  
+     , MDI.SentTimeStamp
+     , MDI.IntegrationType
+     , MDI.integrationAddress
+     , MDI.IntegrationParameter
+     , MSP.IsSelectPatientByActiveEncounter
+     , MSP.PostActionType
+     , MDI.IsCanceled
+     , (
+			    SELECT CASE WHEN count(b.FullName) > 1 THEN CHIS.BCF_CONCAT(CHIS.BCF_CONCAT(CHIS.BCF_CONCAT(Max(b.FullName),'('),count(b.FullName)),')')     
+					    ELSE Max(b.FullName) 
+					    END
+			    FROM notificationcenter_employeemessageinstance a, Employee_EmployeeReadModel b
+			    WHERE a.employeeid = b.id
+			    and a.isinbound = true
+			    and a.messagedispatchitemid = MSI.messagedispatchitemid
+			    group by a.messagedispatchitemid
+     ) AS Recipient           
+     , MDI.PatientId                                            AS PatientId
+     , PAT.PatientDisplayId                                            AS PatientDisplayId
+     , ENC.EncounterId
+     , PAT.PatientFullName                                                 AS PatientName
+     , CASE WHEN PAT.GenderCode = '01' THEN 'M'
+            WHEN PAT.GenderCode = '02' THEN 'F' 
+            ELSE '' END AS GenderType
+     , '' AS Age
+     , PAT.BirthDate                                            AS BirthDay
+     , ENC.DepartmentId
+     , DEP.Name                                                 AS DepartmentName
+
+
+  FROM            notificationcenter_messagedispatchitem     MDI
+ INNER JOIN       notificationcenter_employeemessageinstance MSI ON MDI.Id          = MSI.MessageDispatchItemId AND MSI.IsInbound = 0
+ INNER JOIN       notificationcenter_messagespecification    MSP ON MDI.ServiceCode = MSP.ServiceCode
+ INNER JOIN       PatientDemographic_PatientReadModel                 PAT ON MDI.PatientId   = PAT.Id
+ LEFT OUTER JOIN(
+                   SELECT PatientId
+                        , AttendingDepartmentId                 AS DepartmentId 
+                        , Id           AS EncounterId
+                    FROM            Encountering_EncounterReadModel
+                    WHERE IsValidDataRow = true 
+]]>
+                    <IsNotNull Prepend="AND" Property="TenantId"                  >TenantId = @TenantId</IsNotNull>
+                    <IsNotNull Prepend="AND" Property="HospitalId"                >HospitalId = @HospitalId</IsNotNull>
+<![CDATA[                                           
+                )                                            ENC ON ENC.EncounterId           = MDI.EncounterId
+  LEFT OUTER JOIN Departmentbuilder_Department              DEP 
+  ON ENC.DepartmentId          = DEP.Id 
+]]>
+  <IsNotNull Prepend="AND" Property="TenantId"                  >DEP.TenantId = @TenantId</IsNotNull>
+  <IsNotNull Prepend="AND" Property="HospitalId"                >DEP.HospitalId = @HospitalId</IsNotNull>
+<![CDATA[                          
+ WHERE MDI.ServiceType = 0 
+]]>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >MDI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >MDI.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="SenderId"                  >MDI.SenderId        = @SenderId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="MessageCategory"           >MSP.MessageCategory = @MessageCategory</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >MSI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >MSI.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >MSP.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >MSP.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"                  >PAT.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"                >PAT.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="SearchText">
+      (CHIS.BCF_UPPER(MDI.Content) LIKE CHIS.BCF_CONCAT(CHIS.BCF_CONCAT('%', CHIS.BCF_UPPER(@SearchText)), '%'))
+
+    </IsNotNull>
+    <IsNotNull Prepend="AND" Property="SearchText"                ></IsNotNull>
+    ORDER BY MDI.SentTimeStamp DESC
+    <IsAnd Prepend="">
+      <IsNotNull Prepend="" Property="Skip" />
+      <IsGreater Prepend="" Property="Take" CompareValue="0"/>
+      <IsAndValue Prppend="">
+        OFFSET @Skip ROWS
+        FETCH NEXT @Take ROWS ONLY
+      </IsAndValue>
+    </IsAnd>
+  </sql>
+
+  <sql id="RetrieveMessagesRecipients">
+    <![CDATA[
+SELECT MDI.Id               AS MessageDispatchItemId
+     , MSI.Id               AS MessageInstanceId
+     , MSI.IsHandled
+     , MSI.HandleTime
+     , MSI.IsReaded
+     , MSI.ReadTime
+     , EMB.Id
+     , EMP.FullName         AS EmployeeName
+  FROM      notificationcenter_messagedispatchitem     MDI
+ INNER JOIN notificationcenter_employeemessageinstance MSI ON MDI.Id                   = MSI.MessageDispatchItemId AND MSI.IsInbound = 1
+ INNER JOIN notificationcenter_employeemessagebox      EMB ON MSI.EmployeeMessageBoxId = EMB.Id
+ INNER JOIN Employee_EmployeeReadModel                EMP ON EMB.EmployeeId           = EMP.Id
+ WHERE MDI.ServiceType = 0
+]]>
+    <IsNotNull Prepend="AND" Property="TenantId"             >MDI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"           >MDI.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="MessageDispatchItemId">MDI.Id = @MessageDispatchItemId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"             >MSI.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"           >MSI.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"             >EMB.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"           >EMB.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="TenantId"             >EMP.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId"           >EMP.HospitalId = @HospitalId</IsNotNull>
+  </sql>
+
+
+
+  <sql id="RetrievePatientInfomation">
+    <![CDATA[
+SELECT PAT.Id                                                   AS PatientId
+     , PAT.PatientDisplayId                                            AS PatientDisplayId
+     , PAT.PatientFullName                                                 AS PatientName
+     , CASE WHEN PAT.GenderCode = '01' THEN 'M'
+            WHEN PAT.GenderCode = '02' THEN 'F'
+            ELSE '' END AS GenderType
+     , '' AS Age
+     , ENC.DepartmentId
+     , DEP.Name                                                 AS DepartmentName
+  FROM            PatientDemographic_PatientReadModel                  PAT
+  LEFT OUTER JOIN(
+                    SELECT PatientId
+                        , AttendingDepartmentId                 AS DepartmentId 
+                        , Id           AS EncounterId
+                    FROM  Encountering_EncounterReadModel   M
+                    WHERE IsValidDataRow = true 
+                      AND Id           = @EncounterId
+]]>
+                      <IsNotNull Prepend="AND" Property="TenantId"                  >TenantId = @TenantId</IsNotNull>
+                      <IsNotNull Prepend="AND" Property="HospitalId"                >HospitalId = @HospitalId</IsNotNull>
+<![CDATA[                                             
+                 )                                            ENC 
+  LEFT OUTER JOIN Departmentbuilder_Department               DEP 
+  ON ENC.AttendingDepartmentId          = DEP.Id 
+]]>
+  <IsNotNull Prepend="AND" Property="TenantId"                  >DEP.TenantId = @TenantId</IsNotNull>
+  <IsNotNull Prepend="AND" Property="HospitalId"                >DEP.HospitalId = @HospitalId</IsNotNull>
+<![CDATA[                          
+ WHERE 1 = 1
+]]>
+    <IsNotNull Prepend="AND" Property="TenantId">PAT.TenantId = @TenantId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="HospitalId">PAT.HospitalId = @HospitalId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="PatientId">PAT.Id = @PatientId</IsNotNull>
+    <IsNotNull Prepend="AND" Property="EncounterId">ENC.EncounterId = @EncounterId</IsNotNull>
+  </sql>
+
+</query>

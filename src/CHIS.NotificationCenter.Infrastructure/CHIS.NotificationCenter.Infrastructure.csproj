@@ -1,0 +1,62 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--/-:cnd -->
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <CodeAnalysisRuleSet>CHIS.NotificationCenter.Infrastructure.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <CodeAnalysisRuleSet>CHIS.NotificationCenter.Infrastructure.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="EntityConfigurations\ContactConfiguration.cs" />
+    <Compile Remove="EntityConfigurations\ContactTelephoneConfiguration.cs" />
+    <Compile Remove="EntityConfigurations\DepartmentConfigure.cs" />
+    <Compile Remove="EntityConfigurations\EmployeeConfigure.cs" />
+    <Compile Remove="EntityConfigurations\EncounterEntityConfiguration.cs" />
+    <Compile Remove="EntityConfigurations\JobPositionEntityConfiguration.cs" />
+    <Compile Remove="EntityConfigurations\JobPositionMappingEntityConfiguration.cs" />
+    <Compile Remove="EntityConfigurations\OccupationEntityConfiguration.cs" />
+    <Compile Remove="EntityConfigurations\ParticipantEntityConfiguration.cs" />
+    <Compile Remove="EntityConfigurations\PatientConfigure.cs" />
+    <Compile Remove="EntityConfigurations\TestFKMasterEntityConfiguration.cs" />
+    <Compile Remove="EntityConfigurations\TestFKSlaveEntityConfiguration.cs" />
+    <Compile Remove="Migrations\20191107075830_message specification multiKey.cs" />
+    <Compile Remove="Migrations\20200117080853_notificationcenter_recipientpolicyprotocol primary key policyCode.cs" />
+    <Compile Remove="Repositories\DepartmentRepository.cs" />
+    <Compile Remove="Repositories\EmployeeRepository.cs" />
+    <Compile Remove="Repositories\EncounterRepository.cs" />
+    <Compile Remove="Repositories\JobPositionRepository.cs" />
+    <Compile Remove="Repositories\OccupationRepository.cs" />
+    <Compile Remove="Repositories\PatientRepository.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Queries\NotificationCenterSql.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CHIS.Framework.Core.Extension" Version="2.9.51" />
+    <PackageReference Include="CHIS.Share.AuditTrail" Version="0.0.41" />
+    <PackageReference Include="CHIS.Share.Masking" Version="0.0.22" />
+    <PackageReference Include="CHIS.Share.MedicalAge" Version="0.0.6" />
+    <PackageReference Include="MediatR" Version="7.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CHIS.NotificationCenter.Application\CHIS.NotificationCenter.Application.csproj" />
+    <ProjectReference Include="..\CHIS.NotificationCenter.Domain\CHIS.NotificationCenter.Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <HintPath>System</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="EntityConfigurations\ReadModels\PatientReadModelQueryTypeConfiguration.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+</Project>

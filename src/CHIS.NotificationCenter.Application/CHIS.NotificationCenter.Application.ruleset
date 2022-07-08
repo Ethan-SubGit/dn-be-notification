@@ -1,0 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="SonarQube - BE-notificationcenter CHIS-C# for Business Service" ToolsVersion="15.0">
+  <Include Path="..\..\.sonarlint\be-notificationcentercsharp.ruleset" Action="Default" />
+</RuleSet>

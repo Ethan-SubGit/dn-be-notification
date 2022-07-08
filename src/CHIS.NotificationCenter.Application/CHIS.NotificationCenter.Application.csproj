@@ -1,0 +1,82 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--/-:cnd -->
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <CodeAnalysisRuleSet>CHIS.NotificationCenter.Application.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <CodeAnalysisRuleSet>CHIS.NotificationCenter.Application.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Models\EmployeeAggregate\**" />
+    <Compile Remove="Models\EncounterAggregate\**" />
+    <Compile Remove="Models\JobPositionAggregate\**" />
+    <Compile Remove="Models\OccupationAggregate\**" />
+    <Compile Remove="Models\PatientAggregate\**" />
+    <Compile Remove="Queries\ReadModels\Common\**" />
+    <Compile Remove="Queries\ReadModels\Sms\**" />
+    <EmbeddedResource Remove="Models\EmployeeAggregate\**" />
+    <EmbeddedResource Remove="Models\EncounterAggregate\**" />
+    <EmbeddedResource Remove="Models\JobPositionAggregate\**" />
+    <EmbeddedResource Remove="Models\OccupationAggregate\**" />
+    <EmbeddedResource Remove="Models\PatientAggregate\**" />
+    <EmbeddedResource Remove="Queries\ReadModels\Common\**" />
+    <EmbeddedResource Remove="Queries\ReadModels\Sms\**" />
+    <None Remove="Models\EmployeeAggregate\**" />
+    <None Remove="Models\EncounterAggregate\**" />
+    <None Remove="Models\JobPositionAggregate\**" />
+    <None Remove="Models\OccupationAggregate\**" />
+    <None Remove="Models\PatientAggregate\**" />
+    <None Remove="Queries\ReadModels\Common\**" />
+    <None Remove="Queries\ReadModels\Sms\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="IntegrationMessages\EventHandling\DemographicStartedIntegrationEventHandler.cs" />
+    <Compile Remove="IntegrationMessages\EventHandling\DepartmentCreatedIntegrationEventHandler.cs" />
+    <Compile Remove="IntegrationMessages\EventHandling\EmployeeRegisteredIntegrationEventHandler.cs" />
+    <Compile Remove="IntegrationMessages\EventHandling\EncounterStartedIntegrationEventHandler.cs" />
+    <Compile Remove="IntegrationMessages\EventHandling\JobPositionCreatedIntegrationEventHandler.cs" />
+    <Compile Remove="IntegrationMessages\EventHandling\OccupationCreatedIntegrationEventHandler.cs" />
+    <Compile Remove="IntegrationMessages\EventHandling\zold_EmployeeSmsMessageSendIntegrationEventHandler.cs" />
+    <Compile Remove="IntegrationMessages\Events\Model\SmsReceiveLogDto.cs" />
+    <Compile Remove="Models\CommonModels\zold_EmployeeSmsMessageDto.cs" />
+    <Compile Remove="Models\DepartmentAggregate\Department.cs" />
+    <Compile Remove="Models\DepartmentAggregate\IDepartmentRepository.cs" />
+    <Compile Remove="Models\ProxyModels\Encountering\EncounterBasicView__.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="DomainEventHandlers\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CHIS.Framework.Core.Extension" Version="2.9.51" />
+    <PackageReference Include="CHIS.Share.AuditTrail" Version="0.0.41" />
+    <PackageReference Include="CHIS.Share.Masking" Version="0.0.22" />
+    <PackageReference Include="CHIS.Share.MedicalAge" Version="0.0.6" />
+    <PackageReference Include="CHIS.Share.NotificationCenter" Version="0.0.36" />
+    <PackageReference Include="FluentValidation" Version="8.5.1" />
+    <PackageReference Include="MediatR" Version="7.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CHIS.NotificationCenter.Domain\CHIS.NotificationCenter.Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <HintPath>System</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Commands\MessageSpecification\RegisterMessageTemplateCommand.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Models\QueryType\OccupationReadModel.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+</Project>
